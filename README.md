@@ -231,6 +231,12 @@ Options:
 		Print just about any information that might have reason to be printed.
 		Very spammy, do not use this unless you have good reason.
 
+	-u
+	--underscore
+		Uses underscores to replace forbidden characters in the output filename.
+		If this option is not used, the same lookalike replacement characters
+		that yt-dlp uses will be used to replace forbidden characters.
+
 	-v
 	--verbose
 		Print extra information.
@@ -317,8 +323,9 @@ FORMAT TEMPLATE OPTIONS
 	youtube-dl. See https://github.com/ytdl-org/youtube-dl#output-template
 
 	For file names, each template substitution is sanitized by replacing invalid file name
-	characters with underscore (_).
-
+	characters with the same lookalike characters that yt-dlp uses. 
+	If 'underscore' is used, invalid file name characters get replaced by an underscore (_) instead.
+	
 	id (string): Video identifier
 	url (string): Video URL
 	title (string): Video title

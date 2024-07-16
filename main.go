@@ -261,6 +261,12 @@ Options:
 		Print just about any information that might have reason to be printed.
 		Very spammy, do not use this unless you have good reason.
 
+	-u
+	--underscore
+		Uses underscores to replace forbidden characters in the output filename.
+		If this option is not used, the same lookalike replacement characters
+		that yt-dlp uses will be used to replace forbidden characters.
+
 	-v
 	--verbose
 		Print extra information.
@@ -347,7 +353,8 @@ FORMAT TEMPLATE OPTIONS
 	youtube-dl. See https://github.com/ytdl-org/youtube-dl#output-template
 
 	For file names, each template substitution is sanitized by replacing invalid file name
-	characters with underscore (_).
+	characters with the same lookalike characters that yt-dlp uses.
+	If 'underscore' is used, invalid file name characters get replaced by an underscore (_) instead.
 
 	id (string): Video identifier
 	url (string): Video URL
@@ -415,6 +422,7 @@ var (
 	h264              bool
 	membersOnly       bool
 	disableSaveState  bool
+	underscore        bool
 
 	cancelled = false
 )
@@ -468,6 +476,8 @@ func init() {
 	cliFlags.BoolVar(&monitorChannel, "monitor-channel", false, "Continually monitor a channel for streams.")
 	cliFlags.BoolVar(&membersOnly, "members-only", false, "Only download members-only streams when waiting on a channel URL such as /live.")
 	cliFlags.BoolVar(&disableSaveState, "disable-save-state", false, "Disable resumable download state.")
+	cliFlags.BoolVar(&underscore, "u", false, "Uses underscores to replace forbidden characters in the output filename.")
+	cliFlags.BoolVar(&underscore, "underscore", false, "Uses underscores to replace forbidden characters in the output filename.")
 	cliFlags.StringVar(&cookieFile, "c", "", "Cookies to be used when downloading.")
 	cliFlags.StringVar(&cookieFile, "cookies", "", "Cookies to be used when downloading.")
 	cliFlags.StringVar(&fnameFormat, "o", DefaultFilenameFormat, "Filename output format.")
@@ -639,7 +649,7 @@ func run() int {
 		return 1
 	}
 
-	_, err = FormatFilename(fnameFormat, info.FormatInfo)
+	_, err = FormatFilename(fnameFormat, info.FormatInfo, underscore)
 	if err != nil {
 		LogError(err.Error())
 		return 1
@@ -665,7 +675,7 @@ func run() int {
 	audioOnly = info.Quality == AudioOnlyQuality
 
 	// We checked if there would be errors earlier, should be good
-	fullFPath, _ := FormatFilename(fnameFormat, info.FormatInfo)
+	fullFPath, _ := FormatFilename(fnameFormat, info.FormatInfo, underscore)
 	fdir := filepath.Dir(fullFPath)
 	tmpDir := ""
 	var absDir string
@@ -683,7 +693,7 @@ func run() int {
 	}
 
 	fname := filepath.Base(fullFPath)
-	fname = SterilizeFilename(fname)
+	fname = SterilizeFilename(fname, underscore)
 
 	if strings.HasPrefix(fname, "-") {
 		fname = "_" + fname
